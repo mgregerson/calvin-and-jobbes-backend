@@ -1,12 +1,10 @@
-# Welcome to the Calvin and Jobbes Backend - a Job Searching App for Everyone - because even Calvin has a dream job!
-
-This project was designed by Matt Gregerson. Feel free to reach out with any questions on my design philosophy.
-
-In order for the frontend to run, please see my readme for frontend built in Javascript/React: https://github.com/mgregerson/jobber-the-hutt-frontend
-
 ## Calvin and Jobbes Backend
 
 Welcome to the backend of Calvin and Jobbes! This is the server-side component of the job finding app, built with Node.js and Express. This README will guide you through the setup and usage of the backend.
+
+In order for the frontend to run, please see my readme for frontend built in Javascript/React: https://github.com/mgregerson/jobber-the-hutt-frontend
+
+This project was designed by Matt Gregerson. Feel free to reach out with any questions on my design philosophy.
 
 ### Installation
 
