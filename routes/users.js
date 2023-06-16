@@ -14,7 +14,6 @@ const userUpdateSchema = require("../schemas/userUpdate.json");
 
 const router = express.Router();
 
-
 /** POST / { user }  => { user, token }
  *
  * Adds a new user. This is not the registration endpoint --- instead, this is
@@ -28,13 +27,11 @@ const router = express.Router();
  **/
 
 router.post("/", ensureAdmin, async function (req, res, next) {
-  const validator = jsonschema.validate(
-      req.body,
-      userNewSchema,
-      { required: true },
-  );
+  const validator = jsonschema.validate(req.body, userNewSchema, {
+    required: true,
+  });
   if (!validator.valid) {
-    const errs = validator.errors.map(e => e.stack);
+    const errs = validator.errors.map((e) => e.stack);
     throw new BadRequestError(errs);
   }
 
@@ -42,7 +39,6 @@ router.post("/", ensureAdmin, async function (req, res, next) {
   const token = createToken(user);
   return res.status(201).json({ user, token });
 });
-
 
 /** GET / => { users: [ {username, firstName, lastName, email }, ... ] }
  *
@@ -56,7 +52,6 @@ router.get("/", ensureAdmin, async function (req, res, next) {
   return res.json({ users });
 });
 
-
 /** GET /[username] => { user }
  *
  * Returns { username, firstName, lastName, isAdmin, jobs }
@@ -65,11 +60,14 @@ router.get("/", ensureAdmin, async function (req, res, next) {
  * Authorization required: admin or same user-as-:username
  **/
 
-router.get("/:username", ensureCorrectUserOrAdmin, async function (req, res, next) {
-  const user = await User.get(req.params.username);
-  return res.json({ user });
-});
-
+router.get(
+  "/:username",
+  ensureCorrectUserOrAdmin,
+  async function (req, res, next) {
+    const user = await User.get(req.params.username);
+    return res.json({ user });
+  }
+);
 
 /** PATCH /[username] { user } => { user }
  *
@@ -81,32 +79,52 @@ router.get("/:username", ensureCorrectUserOrAdmin, async function (req, res, nex
  * Authorization required: admin or same-user-as-:username
  **/
 
-router.patch("/:username", ensureCorrectUserOrAdmin, async function (req, res, next) {
-  const validator = jsonschema.validate(
-      req.body,
-      userUpdateSchema,
-      { required: true },
-  );
-  if (!validator.valid) {
-    const errs = validator.errors.map(e => e.stack);
-    throw new BadRequestError(errs);
+router.patch(
+  "/:username",
+  ensureCorrectUserOrAdmin,
+  async function (req, res, next) {
+    const validator = jsonschema.validate(req.body, userUpdateSchema, {
+      required: true,
+    });
+    if (!validator.valid) {
+      const errs = validator.errors.map((e) => e.stack);
+      throw new BadRequestError(errs);
+    }
+
+    const user = await User.update(req.params.username, req.body);
+    return res.json({ user });
   }
-
-  const user = await User.update(req.params.username, req.body);
-  return res.json({ user });
-});
-
+);
 
 /** DELETE /[username]  =>  { deleted: username }
  *
  * Authorization required: admin or same-user-as-:username
  **/
 
-router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, next) {
-  await User.remove(req.params.username);
-  return res.json({ deleted: req.params.username });
-});
+router.delete(
+  "/:username",
+  ensureCorrectUserOrAdmin,
+  async function (req, res, next) {
+    await User.remove(req.params.username);
+    return res.json({ deleted: req.params.username });
+  }
+);
 
+/** GET /[username]/jobs/applications
+ *
+ * Returns a list of jobs that the user has applied to
+ *
+ * Authorization required: Admin or same-user-as-:username
+ */
+
+router.get(
+  "/:username/applications",
+  ensureCorrectUserOrAdmin,
+  async function (req, res, next) {
+    const jobIds = await User.getApplications(req.params.username);
+    return res.json(jobIds);
+  }
+);
 
 /** POST /[username]/jobs/[id]  { state } => { application }
  *
@@ -115,11 +133,15 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
  * Authorization required: admin or same-user-as-:username
  * */
 
-router.post("/:username/jobs/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
-  const jobId = +req.params.id;
-  await User.applyToJob(req.params.username, jobId);
-  return res.json({ applied: jobId });
-});
+router.post(
+  "/:username/jobs/:id",
+  ensureCorrectUserOrAdmin,
+  async function (req, res, next) {
+    const jobId = +req.params.id;
 
+    await User.applyToJob(req.params.username, jobId);
+    return res.json({ applied: jobId });
+  }
+);
 
 module.exports = router;
