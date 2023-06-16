@@ -144,4 +144,14 @@ router.post(
   }
 );
 
+router.post(
+  "/:username/jobs/:id/remove",
+  ensureCorrectUserOrAdmin,
+  async function (req, res, next) {
+    const jobId = +req.params.id;
+    await User.removeApplication(req.params.username, jobId);
+    return res.json({ unapplied: jobId });
+  }
+);
+
 module.exports = router;
