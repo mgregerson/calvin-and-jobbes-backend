@@ -112,7 +112,7 @@ router.delete(
 
 /** GET /[username]/jobs/applications
  *
- * Returns a list of jobs that the user has applied to
+ * Returns a list of job ids that the user has applied to
  *
  * Authorization required: Admin or same-user-as-:username
  */
@@ -121,8 +121,24 @@ router.get(
   "/:username/applications",
   ensureCorrectUserOrAdmin,
   async function (req, res, next) {
-    const jobIds = await User.getApplications(req.params.username);
-    return res.json(jobIds);
+    const jobs = await User.getApplications(req.params.username);
+    return res.json({ jobs });
+  }
+);
+
+/** GET /[username]/jobs
+ *
+ * Returns a list of job that the user has applied to.
+ *
+ * Authorization required: Admin or same-user-as-:username
+ */
+
+router.get(
+  "/:username/jobs",
+  ensureCorrectUserOrAdmin,
+  async function (req, res, next) {
+    const jobs = await User.getJobApplicationDetails(req.params.username);
+    return res.json({ jobs });
   }
 );
 
@@ -143,6 +159,13 @@ router.post(
     return res.json({ applied: jobId });
   }
 );
+
+/** /** POST /[username]/jobs/[id]/remove  { state } => { application }
+ *
+ * Returns {"unapplied": jobId}
+ *
+ * Authorization required: admin or same-user-as-:username
+ * */
 
 router.post(
   "/:username/jobs/:id/remove",

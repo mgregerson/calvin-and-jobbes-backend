@@ -312,6 +312,33 @@ class User {
 
     return jobIds;
   }
+
+  static async getJobApplicationDetails(username) {
+    const applicationRes = await db.query(
+      `
+        SELECT job_id AS "jobId"
+        FROM applications
+        WHERE username = $1`,
+      [username]
+    );
+
+    const applications = applicationRes.rows;
+    const jobIds = applications.map((obj) => obj.jobId);
+    let jobs = [];
+
+    for (let id of jobIds) {
+      const jobRes = await db.query(
+        `
+          SELECT id, title, salary, equity, company_handle AS "companyHandle"
+          FROM jobs
+          WHERE id = $1`,
+        [id]
+      );
+      const job = jobRes.rows[0];
+      jobs.push(job);
+    }
+    return jobs;
+  }
 }
 
 module.exports = User;
